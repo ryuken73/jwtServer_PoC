@@ -14,6 +14,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import axios from 'axios';
 import { useHistory } from 'react-router';
+import Loading from '../Loading';
 
 function Copyright() {
   return (
@@ -50,41 +51,70 @@ const useStyles = makeStyles((theme) => ({
 
 function Login(props) {
   const {
-    setTokenValid
+    setTokenValid,
+    showAlert
   } = props;
   const history = useHistory();
   const classes = useStyles();
   const [userId, setUserId] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [errMsg, setErrMsg] = React.useState('');
+  const [jwtExpire, setJwtExpire] = React.useState(10);
+  const [isFetching, setIsFetching] = React.useState(false);
 
   const onChangeId = event => setUserId(event.target.value);
   const onChangePassword = event => setPassword(event.target.value);
 
+  const onKeyUp = event => {
+    if(event.keyCode === 13){
+      onSubmit();
+    }
+  }
+
+  const onChangeExp = event => {
+    console.log(event.target.value);
+    if(event.target.value === ''){
+      setJwtExpire(0);
+      return
+    }
+    if(parseInt(event.target.value) !== NaN){
+      setJwtExpire(parseInt(event.target.value));
+    }
+  }
+
   const onSubmit = event => {
     console.log('submit:', userId, password);
-    axios.post('/login', {
-        username:userId,
-        password:password
-    }).
-    then(res => {
-        console.log(res.data)
-        const {authenticated, redirect, errMsg} = res.data;
-        if(authenticated === true){
+    setIsFetching(true);
+    setTimeout(() => {
+      axios.post('/login', {
+          username:userId,
+          password:password,
+          exp: jwtExpire
+      }).
+      then(res => {
+          console.log(res.data)
+          const {authenticated, redirect, errMsg} = res.data;
+          if(authenticated === true){
             setTokenValid(true)
             history.push('/protected');
+            setIsFetching(false)
+            showAlert({severity:'success', message: 'login success!'})
             return;
-        }
-        setErrMsg(errMsg);
-    })
-    .catch(err => {
-        console.error(err)
-    })
+          }
+          setIsFetching(false)
+          showAlert({severity:'error', message: errMsg})
+      })
+      .catch(err => {
+          console.error(err)
+          setIsFetching(false)
+      })
+    }, 1000)
+
   }
 
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
+      {isFetching && <Loading open={isFetching} message={"Check Authenticated.."}></Loading> }
       <div className={classes.paper}>
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
@@ -118,11 +148,18 @@ function Login(props) {
             autoComplete="current-password"
             value={password}
             onChange={onChangePassword}
+            onKeyDown={onKeyUp}
           />
           <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
+          <Box display="flex" alignItems="center" width="100%">
+            <Box width="100%">Token Expires in(sec)</Box>
+            <Box width="100%">
+              <TextField variant="outlined" size="small" margin="dense" value={jwtExpire} onChange={onChangeExp}></TextField>
+            </Box>
+          </Box>
           <Button
             type="submit"
             fullWidth
@@ -149,9 +186,6 @@ function Login(props) {
       </div>
       <Box mt={8}>
         <Copyright />
-      </Box>
-      <Box mt="10px" fontSize="15px" color="red">
-          {errMsg}
       </Box>
     </Container>
   );
