@@ -76,7 +76,7 @@ function Login(props) {
       setJwtExpire(0);
       return
     }
-    if(parseInt(event.target.value) !== NaN){
+    if(!isNaN(parseInt(event.target.value))){
       setJwtExpire(parseInt(event.target.value));
     }
   }
@@ -88,14 +88,14 @@ function Login(props) {
       axios.post('/login', {
           username:userId,
           password:password,
-          exp: jwtExpire
+          expAccess: jwtExpire
       }).
       then(res => {
           console.log(res.data)
-          const {authenticated, redirect, errMsg} = res.data;
+          const {authenticated, errMsg} = res.data;
           if(authenticated === true){
             setTokenValid(true)
-            history.push('/pages/protected');
+            history.push('/pages/protected/portal');
             setIsFetching(false)
             showAlert({severity:'success', message: 'login success!'})
             return;

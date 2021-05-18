@@ -22,7 +22,7 @@ function AuthRoute(props) {
             console.log(err)
             setTokenValid(false)
         })
-    },[])
+    },[setTokenValid])
     return (
         <Route
             {...rest}

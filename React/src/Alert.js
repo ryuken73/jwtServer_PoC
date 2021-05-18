@@ -20,10 +20,6 @@ export default function CustomizedSnackbars(props) {
   const classes = useStyles();
   const {openAlert, setOpenAlert, severity='info', alertMessage=''} = props;
 
-  const handleClick = () => {
-    setOpenAlert(true);
-  };
-
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -33,7 +29,7 @@ export default function CustomizedSnackbars(props) {
 
   return (
     <div className={classes.root}>
-      <Snackbar open={openAlert} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={openAlert} autoHideDuration={3000} onClose={handleClose}>
         <Alert severity={severity} onClose={handleClose}>{alertMessage}</Alert>
       </Snackbar>
     </div>

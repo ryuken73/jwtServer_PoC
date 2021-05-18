@@ -30,15 +30,22 @@ const {jwtIssue} = jwtUtil;
 
 router.post('/', async (req, res, next) => {
   console.log(req.body);
-  const {SECRET, JWT_EXPIRE_SECONDS} = req.app.locals;
-  const {username, password, exp=JWT_EXPIRE_SECONDS} = req.body;
+  const {SECRET, ACCESS_JWT_EXPIRE_SECONDS, REFRESH_JWT_EXPIRE_SECONDS} = req.app.locals;
+  const {
+      username, 
+      password, 
+      expAccess=ACCESS_JWT_EXPIRE_SECONDS,
+      expRefresh=REFRESH_JWT_EXPIRE_SECONDS
+    } = req.body;
   const isAuthenticated = await db.authenticate(username, password);
   console.log(isAuthenticated);
 
   if(isAuthenticated){
       try {
-        const token = await jwtIssue({username}, SECRET, {expiresIn:exp});
-        res.append('Set-cookie', `pocToken=${token}; HttpOnly`)
+        const accessToken = await jwtIssue({username}, SECRET, {expiresIn:expAccess});
+        const refreshToken = await jwtIssue({username}, SECRET, {expiresIn:expRefresh});
+        res.append('Set-cookie', `refreshToken=${refreshToken}; HttpOnly`);
+        res.append('Set-cookie', `accessToken=${accessToken}; HttpOnly`);
         res.json({authenticated:true, redirect:'/protected'})
       } catch(err) {
         console.error(err);

@@ -1,14 +1,36 @@
 import React from 'react';
-import {Route, Switch} from 'react-router-dom';
-import Box from '@material-ui/core/Box'
+import {Route, Switch, useHistory} from 'react-router-dom';
 import AuthRoute from './AuthRoute';
-import {Login, Protected, UserInfo, Home} from './pages';
+import {Login, Protected} from './pages';
 import Loading from './Loading';
 import Alert from './Alert';
 import axios from 'axios';
 
 export default function App(props) {
   console.log('App re-render:', props);
+  const history = useHistory();
+
+  const axiosRedirectSetup = options => {
+    const {axios,  statusCode, redirectUrl} = options;
+    axios.interceptors.response.use(
+      function(response){
+        console.log(response);
+        return response;
+      },
+      function(error){
+        if(error.response && error.response.status === statusCode){
+          history.push(redirectUrl);
+        }
+        return Promise.reject(error);
+      }
+    )
+    return axios;
+  }
+
+  const axiosRedirectRelease = interceptor => {
+    axios.interceptors.response.eject(interceptor);
+  }
+
   const [isFetching, setIsFetching] = React.useState(true);
   const [tokenValid, setTokenValid] = React.useState(false);
   const [openAlert, setOpenAlert] = React.useState(false);
@@ -16,6 +38,7 @@ export default function App(props) {
   const [alertSeverity, setAlertSevirity] = React.useState('info');
 
   React.useEffect(() => {
+    const interceptor = axiosRedirectSetup({axios, statusCode:401, redirectUrl:'/pages/login'})
     axios.get('/decodeToken')
     .then(res => {
         const authenticated = res.data;
@@ -23,7 +46,7 @@ export default function App(props) {
             setTimeout(() => {
               setTokenValid(true);
               setIsFetching(false);
-            },1000)
+            },500)
 
         }
     })
@@ -32,9 +55,13 @@ export default function App(props) {
           showAlert({severity:'error', message: err.message})
           setTokenValid(false)
           setIsFetching(false);
-        }, 1000)
+        }, 500)
 
     })
+
+    return () => {
+      axiosRedirectRelease(interceptor)
+    }
   },[]) 
 
   const showAlert = options => {
@@ -44,15 +71,14 @@ export default function App(props) {
     setOpenAlert(true);
   }
 
-  const hideAlert = () => {
-    setOpenAlert(false)
-  }
-
   return (
     <div>
       {isFetching ? 
         <Loading open={isFetching} message={"Check Authenticated.."}></Loading> :
         <Switch>
+          <Route exact path="/">
+            <Login showAlert={showAlert} setTokenValid={setTokenValid}></Login>            
+          </Route> 
           <Route exact path="/pages/login">
             <Login showAlert={showAlert} setTokenValid={setTokenValid}></Login>
           </Route>
@@ -60,19 +86,10 @@ export default function App(props) {
             tokenValid={tokenValid} 
             setTokenValid={setTokenValid} 
             showAlert={showAlert} 
-            exact path="/pages/protected"
+            path="/pages/protected/:resource"
           >
             <Protected></Protected>
           </AuthRoute>
-          <AuthRoute 
-            tokenValid={tokenValid} 
-            setTokenValid={setTokenValid} 
-            showAlert={showAlert} 
-            exact path="/pages/userInfo"
-          >
-            <UserInfo></UserInfo>
-          </AuthRoute>
-          <Route exact path="/" component={Home}/>
         </Switch>
       }
       <Alert

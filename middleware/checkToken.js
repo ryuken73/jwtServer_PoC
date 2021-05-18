@@ -4,14 +4,14 @@ const {jwtVerify} = jwtUtil;
 module.exports = async (req, res, next) => {
     const {cookies} = req;
     const {SECRET} = req.app.locals;
-    const pocToken = cookies ? cookies.pocToken : null;
-    if(pocToken === null || pocToken === undefined){
+    const accessToken = cookies ? cookies.accessToken : null;
+    if(accessToken === null || accessToken === undefined){
         console.error('No token provided');
         res.status(401).json({authenticated:false, errMsg:'No token provided!'});
         return;
     }
     try {
-        const tokenDecoded = await jwtVerify(pocToken, SECRET);
+        const tokenDecoded = await jwtVerify(accessToken, SECRET);
         console.log(`tokenDecoded:`, tokenDecoded)
         // if(tokenDecoded){
             req.tokenDecoded = tokenDecoded;

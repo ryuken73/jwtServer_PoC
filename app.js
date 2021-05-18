@@ -12,7 +12,8 @@ var decodeTokenRouter = require('./routes/decodeToken');
 
 var app = express();
 
-app.locals.JWT_EXPIRE_SECONDS = 60;
+app.locals.ACCESS_JWT_EXPIRE_SECONDS = 60;
+app.locals.REFRESH_JWT_EXPIRE_SECONDS = 60 * 60;
 app.locals.SECRET = 'WISE';
 
 // view engine setup
