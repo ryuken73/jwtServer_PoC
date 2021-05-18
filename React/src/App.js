@@ -53,14 +53,14 @@ export default function App(props) {
       {isFetching ? 
         <Loading open={isFetching} message={"Check Authenticated.."}></Loading> :
         <Switch>
-          <Route exact path="/login">
+          <Route exact path="/page/login">
             <Login showAlert={showAlert} setTokenValid={setTokenValid}></Login>
           </Route>
           <AuthRoute 
             tokenValid={tokenValid} 
             setTokenValid={setTokenValid} 
             showAlert={showAlert} 
-            exact path="/protected"
+            exact path="/page/protected"
           >
             <Protected></Protected>
           </AuthRoute>
@@ -68,7 +68,7 @@ export default function App(props) {
             tokenValid={tokenValid} 
             setTokenValid={setTokenValid} 
             showAlert={showAlert} 
-            exact path="/userInfo"
+            exact path="/page/userInfo"
           >
             <UserInfo></UserInfo>
           </AuthRoute>

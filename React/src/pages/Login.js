@@ -95,7 +95,7 @@ function Login(props) {
           const {authenticated, redirect, errMsg} = res.data;
           if(authenticated === true){
             setTokenValid(true)
-            history.push('/protected');
+            history.push('/page/protected');
             setIsFetching(false)
             showAlert({severity:'success', message: 'login success!'})
             return;
