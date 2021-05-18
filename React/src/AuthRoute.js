@@ -30,7 +30,7 @@ function AuthRoute(props) {
                 tokenValid ? (children) :
                 (<Redirect
                     to={{
-                        pathname: '/page/login',
+                        pathname: '/pages/login',
                         state: {from: location}
                     }}
                 ></Redirect>)
