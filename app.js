@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 var loginRouter = require('./routes/login');
 var protectedRouter = require('./routes/protected');
 var decodeTokenRouter = require('./routes/decodeToken');
+var refreshTokenRouter = require('./routes/refreshToken');
 
 var app = express();
 
@@ -32,6 +33,7 @@ app.use('/users', usersRouter);
 app.use('/login', loginRouter);
 app.use('/protected', checkToken, protectedRouter);
 app.use('/decodeToken', decodeTokenRouter);
+app.use('/refreshToken', refreshTokenRouter);
 
 app.use('/*', (req, res) => {
   res.sendFile(path.join(__dirname+'/public/index.html'));

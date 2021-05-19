@@ -1,5 +1,6 @@
 import React from 'react';
 import {Route, Switch, useHistory} from 'react-router-dom';
+import Box from '@material-ui/core/Box'
 import AuthRoute from './AuthRoute';
 import {Login, Protected} from './pages';
 import Loading from './Loading';
@@ -11,20 +12,38 @@ export default function App(props) {
   const history = useHistory();
 
   const axiosRedirectSetup = options => {
-    const {axios,  statusCode, redirectUrl} = options;
+    const {axios,  errStatusCode, redirectUrl} = options;
     axios.interceptors.response.use(
       function(response){
         console.log(response);
         return response;
       },
-      function(error){
-        if(error.response && error.response.status === statusCode){
+      async function(error){
+        console.log(error.response)
+        if(error.response.status === errStatusCode.refreshTokenExpires){
           history.push(redirectUrl);
+          return Promise.reject(error);
+        }
+        if(error.response.status === errStatusCode.accessTokenExpires){
+          const response = await axios.post('/refreshToken', {returnAccessTokenBy: 'body'});
+          const {success, accessToken} = response.data;
+          if(success){
+            axios.defaults.params = {
+              ...axios.defaults.params,
+              accessToken
+            }
+            const {params, ...rest} = error.config;
+            const originalRequestConfig = {
+              params: {...params, accessToken},
+              ...rest
+            }   
+            const origResponse = await axios.request(originalRequestConfig);
+            return origResponse;       
+          }
         }
         return Promise.reject(error);
       }
     )
-    return axios;
   }
 
   const axiosRedirectRelease = interceptor => {
@@ -36,9 +55,21 @@ export default function App(props) {
   const [openAlert, setOpenAlert] = React.useState(false);
   const [alertMessage, setAlertMessage] = React.useState('');
   const [alertSeverity, setAlertSevirity] = React.useState('info');
+  const [useAccessTokenIn, setUseAccessTokenIn] = React.useState('query')
 
   React.useEffect(() => {
-    const interceptor = axiosRedirectSetup({axios, statusCode:401, redirectUrl:'/pages/login'})
+    axios.defaults.params = {
+      ...axios.defaults.params,
+      useAccessTokenIn
+    }
+  },[useAccessTokenIn])
+
+  React.useEffect(() => {
+    const errStatusCode = {
+      'refreshTokenExpires': 401,
+      'accessTokenExpires': 499
+    }
+    const interceptor = axiosRedirectSetup({axios, errStatusCode, redirectUrl:'/pages/login'})
     axios.get('/decodeToken')
     .then(res => {
         const authenticated = res.data;
@@ -77,10 +108,10 @@ export default function App(props) {
         <Loading open={isFetching} message={"Check Authenticated.."}></Loading> :
         <Switch>
           <Route exact path="/">
-            <Login showAlert={showAlert} setTokenValid={setTokenValid}></Login>            
+            <Login showAlert={showAlert} setTokenValid={setTokenValid} useAccessTokenIn={useAccessTokenIn}></Login> 
           </Route> 
           <Route exact path="/pages/login">
-            <Login showAlert={showAlert} setTokenValid={setTokenValid}></Login>
+            <Login showAlert={showAlert} setTokenValid={setTokenValid} useAccessTokenIn={useAccessTokenIn}></Login>
           </Route>
           <AuthRoute 
             tokenValid={tokenValid} 

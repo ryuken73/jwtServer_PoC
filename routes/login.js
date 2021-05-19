@@ -34,6 +34,7 @@ router.post('/', async (req, res, next) => {
   const {
       username, 
       password, 
+      returnAccessTokenBy='body',
       expAccess=ACCESS_JWT_EXPIRE_SECONDS,
       expRefresh=REFRESH_JWT_EXPIRE_SECONDS
     } = req.body;
@@ -43,10 +44,17 @@ router.post('/', async (req, res, next) => {
   if(isAuthenticated){
       try {
         const accessToken = await jwtIssue({username}, SECRET, {expiresIn:expAccess});
-        const refreshToken = await jwtIssue({username}, SECRET, {expiresIn:expRefresh});
+        const refreshToken = await jwtIssue({username, accessToken, expAccess}, SECRET, {expiresIn:expRefresh});
+        // return refresh token by Set-Cookie 
         res.append('Set-cookie', `refreshToken=${refreshToken}; HttpOnly`);
-        res.append('Set-cookie', `accessToken=${accessToken}; HttpOnly`);
-        res.json({authenticated:true, redirect:'/protected'})
+        const result = {authenticated: true, errMsg: null}
+        if(returnAccessTokenBy === 'body'){
+            result.accessToken = accessToken;
+        }
+        if(returnAccessTokenBy === 'cookie'){
+            res.append('Set-cookie', `accessToken=${accessToken}; HttpOnly`);
+        }
+        res.json(result)
       } catch(err) {
         console.error(err);
         res.json({authenticated:false, errMsg:err})

@@ -4,8 +4,8 @@ const jwtUtil = require('../lib/jwtUtil');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  console.log('in protected:', req.tokenDecoded);
-  res.status(200).json(req.tokenDecoded)
+  const {refreshTokenDecoded, accessTokenDecoded} = req;
+  res.status(200).json({refreshTokenDecoded, accessTokenDecoded});
 });
 
 module.exports = router;

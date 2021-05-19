@@ -8,6 +8,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
+import Paper from '@material-ui/core/Paper';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -49,16 +50,26 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const injectTokenQueryParamenter = token => {
+  console.log('injectTokenQueryParamenter:', token)
+  axios.defaults.params = {
+    ...axios.defaults.params,
+    accessToken: token
+  }
+}
+
 function Login(props) {
   const {
     setTokenValid,
-    showAlert
+    showAlert,
+    useAccessTokenIn
   } = props;
   const history = useHistory();
   const classes = useStyles();
   const [userId, setUserId] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [jwtExpire, setJwtExpire] = React.useState(10);
+  const [accessTokenExpire, setAccessTokenExpire] = React.useState(10);
+  const [refreshTokenExpire, setRefreshTokenExpire] = React.useState(60);
   const [isFetching, setIsFetching] = React.useState(false);
 
   const onChangeId = event => setUserId(event.target.value);
@@ -70,30 +81,57 @@ function Login(props) {
     }
   }
 
-  const onChangeExp = event => {
+  const returnAccessTokenBy = 'body'; // cookie
+  const getAccessTokenFromBody = res => res.data.accessToken;
+  const injectAccessToken = {
+    'query' : injectTokenQueryParamenter,
+    'cookie' : () => {},
+    'header' : () => {}
+  }
+
+  const onChangeAccessTokenExp = event => {
     console.log(event.target.value);
     if(event.target.value === ''){
-      setJwtExpire(0);
+      setAccessTokenExpire(0);
       return
     }
     if(!isNaN(parseInt(event.target.value))){
-      setJwtExpire(parseInt(event.target.value));
+      setAccessTokenExpire(parseInt(event.target.value));
     }
   }
+  
+  const onChangeRefreshTokenExp = event => {
+    console.log(event.target.value);
+    if(event.target.value === ''){
+      setRefreshTokenExpire(0);
+      return
+    }
+    if(!isNaN(parseInt(event.target.value))){
+      setRefreshTokenExpire(parseInt(event.target.value));
+    }
+  }
+
 
   const onSubmit = event => {
     console.log('submit:', userId, password);
     setIsFetching(true);
     setTimeout(() => {
       axios.post('/login', {
-          username:userId,
-          password:password,
-          expAccess: jwtExpire
+          username: userId,
+          password: password,
+          expAccess: accessTokenExpire,
+          expRefresh: refreshTokenExpire,
+          returnAccessTokenBy
       }).
       then(res => {
-          console.log(res.data)
+          console.log(res.data);
           const {authenticated, errMsg} = res.data;
           if(authenticated === true){
+            if(returnAccessTokenBy === 'body'){
+              const accessToken = getAccessTokenFromBody(res);  
+              const setupRequest = injectAccessToken[useAccessTokenIn];
+              setupRequest(accessToken);
+            }
             setTokenValid(true)
             history.push('/pages/protected/portal');
             setIsFetching(false)
@@ -154,12 +192,6 @@ function Login(props) {
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
-          <Box display="flex" alignItems="center" width="100%">
-            <Box width="100%">Token Expires in(sec)</Box>
-            <Box width="100%">
-              <TextField variant="outlined" size="small" margin="dense" value={jwtExpire} onChange={onChangeExp}></TextField>
-            </Box>
-          </Box>
           <Button
             type="submit"
             fullWidth
@@ -184,9 +216,27 @@ function Login(props) {
           </Grid>
         </div>
       </div>
+      <Paper width="90%">
+        <Box p="10px" fontSize="12px" mt="10px">
+          <Box display="flex" alignItems="center" width="100%">
+            <Box width="100%">Access Token Expires in(sec)</Box>
+            <Box width="100%">
+              <TextField variant="outlined" size="small" margin="dense" value={accessTokenExpire} onChange={onChangeAccessTokenExp}></TextField>
+            </Box>
+          </Box>
+          <Box display="flex" alignItems="center" width="100%">
+            <Box width="100%">Refresh Token Expires in(sec)</Box>
+            <Box width="100%">
+              <TextField variant="outlined" size="small" margin="dense" value={refreshTokenExpire} onChange={onChangeRefreshTokenExp}></TextField>
+            </Box>
+          </Box>
+        </Box>
+      </Paper>
       <Box mt={8}>
         <Copyright />
       </Box>
+
+
     </Container>
   );
 }
