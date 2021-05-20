@@ -2,6 +2,7 @@ import React from 'react';
 import {useParams, NavLink} from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import Paper from '@material-ui/core/Paper';
+import BenchMark from './BenchMark';
 import Divider from '@material-ui/core/Divider';
 import axios from 'axios';
 
@@ -18,7 +19,7 @@ function Protected(props) {
     const [refreshRemainSeconds, setRefreshRemainSeconds] = React.useState('calculating...');
     React.useEffect(() => {
         let expAccessTimer, expRefreshTimer;
-        axios.get('/protected')
+        axios.get('/private')
         .then(res => {
             console.log(res);
             const {refreshTokenDecoded, accessTokenDecoded} = res.data;
@@ -64,13 +65,13 @@ function Protected(props) {
         <Box display="flex" flexDirection="column" m="auto" mt="80px" width="40%">
             {isFetching === false &&      
             <React.Fragment>
-                <Box display="flex">
+                <Box display="flex" mb="10px">
                     <Box display="flex" flexDirection="column" width="50%" m="5px">
-                        <Box mb="5px">Access Token: remains [{accessRemainSeconds}]</Box>
-                        <Paper>
+                        <Box color={accessRemainSeconds==='expired' && 'red'} mb="5px">Access Token: remains [{accessRemainSeconds}]</Box>
+                        <Paper elevation={3}>
                             {Object.entries(accessTokenDecoded).map(([key, value]) => {
                                 return (
-                                    <Box p="3px" display="flex">
+                                    <Box p="5px" display="flex">
                                             <Box>{key} :</Box>
                                             <Box>{value}</Box>
                                     </Box>
@@ -79,11 +80,11 @@ function Protected(props) {
                         </Paper>
                     </Box>
                     <Box display="flex" flexDirection="column" width="50%" m="5px">
-                        <Box mb="5px">Refresh Token: remains [{refreshRemainSeconds}]</Box>
-                        <Paper>
+                        <Box color={refreshRemainSeconds==='expired' && 'red'} mb="5px">Refresh Token: remains [{refreshRemainSeconds}]</Box>
+                        <Paper elevation={3}>
                             {Object.entries(refreshTokenDecoded).map(([key, value]) => {
                                 return (
-                                    <Box p="3px" display="flex">
+                                    <Box p="5px" display="flex">
                                             <Box>{key} :</Box>
                                             <Box>{value}</Box>
                                     </Box>
@@ -99,10 +100,12 @@ function Protected(props) {
                     {resource} page
                 </Box>
                 <Box>
-                    <Box><NavLink to="/pages/protected/portal">Portal</NavLink></Box>
-                    <Box><NavLink to="/pages/protected/mail">Mail</NavLink></Box>
-                    <Box><NavLink to="/pages/protected/userInfo">UserInfo</NavLink></Box>
+                    <Box><NavLink to="/pages/private/portal">Portal</NavLink></Box>
+                    <Box><NavLink to="/pages/private/mail">Mail</NavLink></Box>
+                    <Box><NavLink to="/pages/private/userInfo">UserInfo</NavLink></Box>
+                    <Box><NavLink to="/pages/private/benchmark">Benchmark</NavLink></Box>
                 </Box>
+                {resource === 'benchmark' && <BenchMark></BenchMark>}
             </React.Fragment>
             }
         </Box>
