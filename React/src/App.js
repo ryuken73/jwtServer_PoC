@@ -15,7 +15,7 @@ export default function App(props) {
     const {axios,  errStatusCode, redirectUrl} = options;
     axios.interceptors.response.use(
       function(response){
-        console.log(response);
+        console.log('### in intercepter:', response)
         return response;
       },
       async function(error){
@@ -72,13 +72,19 @@ export default function App(props) {
     const interceptor = axiosRedirectSetup({axios, errStatusCode, redirectUrl:'/pages/login'})
     axios.get('/decodeToken')
     .then(res => {
-        const authenticated = res.data;
-        if(authenticated){
+        const {authenticated} = res.data;
+        console.log('#######:', res.data)
+        if(authenticated === true){
             setTimeout(() => {
+              console.log('##### setting token valid true')
               setTokenValid(true);
               setIsFetching(false);
             },500)
-
+        } else {
+          setTimeout(() => {
+            setTokenValid(false);
+            setIsFetching(false);
+          },500)
         }
     })
     .catch(err => {
@@ -117,7 +123,7 @@ export default function App(props) {
             tokenValid={tokenValid} 
             setTokenValid={setTokenValid} 
             showAlert={showAlert} 
-            path="/pages/protected/:resource"
+            path="/pages/private/:resource"
           >
             <Protected></Protected>
           </AuthRoute>

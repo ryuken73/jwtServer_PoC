@@ -16,11 +16,11 @@ module.exports = async (req, res, next) => {
         return;
     }
 
-    if(accessToken === null || accessToken === undefined){
-        console.error('No token provided');
-        res.redirect(301, '/pages/login');
-        return;
-    }
+    // if(accessToken === null || accessToken === undefined){
+    //     console.error('No token provided');
+    //     res.redirect(301, '/pages/login');
+    //     return;
+    // }
 
     let refreshTokenDecoded, accessTokenDecoded;
     try {
