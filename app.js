@@ -7,7 +7,8 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var loginRouter = require('./routes/login');
-var protectedRouter = require('./routes/protected');
+var publicRouter = require('./routes/public');
+var privateRouter = require('./routes/private');
 var decodeTokenRouter = require('./routes/decodeToken');
 var refreshTokenRouter = require('./routes/refreshToken');
 
@@ -31,7 +32,8 @@ const checkToken = require('./middleware/checkToken');
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/login', loginRouter);
-app.use('/protected', checkToken, protectedRouter);
+app.use('/public', publicRouter);
+app.use('/private', checkToken, privateRouter);
 app.use('/decodeToken', decodeTokenRouter);
 app.use('/refreshToken', refreshTokenRouter);
 
