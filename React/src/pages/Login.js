@@ -133,7 +133,7 @@ function Login(props) {
               setupRequest(accessToken);
             }
             setTokenValid(true)
-            history.push('/pages/protected/portal');
+            history.push('/pages/private/portal');
             setIsFetching(false)
             showAlert({severity:'success', message: 'login success!'})
             return;
