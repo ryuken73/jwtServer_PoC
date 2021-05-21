@@ -14,33 +14,43 @@ export default function App(props) {
   const axiosRedirectSetup = options => {
     const {axios,  errStatusCode, redirectUrl} = options;
     axios.interceptors.response.use(
+      // 200 resposne. just pass response
       function(response){
         console.log('### in intercepter:', response)
         return response;
       },
       async function(error){
+      // not 200 response.
         console.log(error.response)
+        // if response code is refresh token expired, then redirect login page.
         if(error.response.status === errStatusCode.refreshTokenExpires){
           history.push(redirectUrl);
           return Promise.reject(error);
         }
+        // if response code is access token expired, then request refresh token and resend request.
         if(error.response.status === errStatusCode.accessTokenExpires){
           const response = await axios.post('/refreshToken', {returnAccessTokenBy: 'body'});
           const {success, accessToken} = response.data;
           if(success){
+            // replace default access token query parameter with new access token.
             axios.defaults.params = {
               ...axios.defaults.params,
               accessToken
             }
+            // setup new request config. using error.config, we can resend original request.
             const {params, ...rest} = error.config;
+            // manually set new access token for resend request
             const originalRequestConfig = {
               params: {...params, accessToken},
               ...rest
             }   
+            // resend original request
             const origResponse = await axios.request(originalRequestConfig);
+            // following response comes in original axios.method return
             return origResponse;       
           }
         }
+        // if response is anything else, reject (comes in original axios's catch block)
         return Promise.reject(error);
       }
     )
