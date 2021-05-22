@@ -1,6 +1,6 @@
 const express = require('express');
-const jwtUtil = require('../lib/jwtUtil');
 const router = express.Router();
+const jwtUtil = require('../lib/jwtUtil');
 
 const passwdTable = {
     'jwt':'1'
@@ -26,7 +26,7 @@ const db = {
 }
 
 /* GET users listing. */
-const {jwtIssue} = jwtUtil;
+const {jwtIssue, jwtDecode} = jwtUtil;
 
 router.post('/', async (req, res, next) => {
   console.log(req.body);
@@ -50,6 +50,7 @@ router.post('/', async (req, res, next) => {
         const result = {authenticated: true, errMsg: null}
         if(returnAccessTokenBy === 'body'){
             result.accessToken = accessToken;
+            result.refreshTokenDecoded = jwtDecode(refreshToken);
         }
         if(returnAccessTokenBy === 'cookie'){
             res.append('Set-cookie', `accessToken=${accessToken}; HttpOnly`);

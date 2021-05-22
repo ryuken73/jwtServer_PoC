@@ -10,63 +10,76 @@ import { useHistory } from 'react-router';
 import axios from 'axios';
 
 function Protected(props) {
-    // console.log('Protected re-render: ', props);
-    const {accessToken, setAccessToken} = props;
+    console.log('Protected re-render: ', props);
+    const {accessToken, accessTokenDecoded} = props;
+    const {setAccessToken, setAccessTokenDecoded, setRefreshTokenDecoded} = props;
+    const {refreshTokenDecoded} = props;
     const history = useHistory();
     const {resource} = useParams();
     const [isFetching, setIsFetching] = React.useState(true);
-    const [accessTokenDecoded, setAccessTokenDecoded] = React.useState({});
-    const [refreshTokenDecoded, setRefreshTokenDecoded] = React.useState({});
     const [accessRemainSeconds, setAccessRemainSeconds] = React.useState('calculating.');
     const [refreshRemainSeconds, setRefreshRemainSeconds] = React.useState('calculating.');
-    // const [accessToken, setAccessToken] = React.useState('');
-    React.useEffect(() => {
-
-    },[accessToken]);
 
     React.useEffect(() => {
+        if(accessTokenDecoded === '' || refreshTokenDecoded === ''){
+            return
+        }
         let expAccessTimer, expRefreshTimer;
+
+        const origAccessToken = refreshTokenDecoded.accessToken;
+        refreshTokenDecoded.accessToken = 
+        origAccessToken.substr(1,10) + 
+        '...' +  
+        origAccessToken.substr(origAccessToken.length -5)
+        const accessTokenExp = accessTokenDecoded.exp;
+        const refreshTokenExp = refreshTokenDecoded.exp;
+        expAccessTimer = setInterval(() => {
+            const remainSec = parseInt((accessTokenExp*1000 - Date.now())/1000).toFixed(0);
+            console.log('####', remainSec, accessTokenExp*1000, Date.now())
+            if(remainSec <= 0) {
+                setAccessRemainSeconds('expired');
+                return
+            }
+            setAccessRemainSeconds(remainSec);
+        },1000)
+        expRefreshTimer = setInterval(() => {
+            const remainSec = parseInt((refreshTokenExp*1000 - Date.now())/1000).toFixed(0);
+            if(remainSec <= 0) {
+                setRefreshRemainSeconds('expired');
+                return
+            }
+            setRefreshRemainSeconds(remainSec);
+        },1000)
+        return () => {
+            console.log('dismount Protected')
+            clearInterval(expAccessTimer);
+            clearInterval(expRefreshTimer);
+        }
+    },[accessTokenDecoded, refreshTokenDecoded]);
+
+    React.useEffect(() => {        
         axios.get('/private')
         .then(res => {
             console.log(res);
-            const {refreshTokenDecoded, accessTokenDecoded} = res.data;
-            const origAccessToken = refreshTokenDecoded.accessToken;
-            setAccessToken(origAccessToken)
-            refreshTokenDecoded.accessToken = 
-            origAccessToken.substr(1,10) + 
-            '...' +  
-            origAccessToken.substr(origAccessToken.length -5)
-            
-            const accessTokenExp = accessTokenDecoded.exp;
-            const refreshTokenExp = refreshTokenDecoded.exp;
-            setAccessTokenDecoded(accessTokenDecoded);
-            setRefreshTokenDecoded(refreshTokenDecoded);
+            if(refreshTokenDecoded === ''){
+                // refresh(F5) occurred. need to set accessToken and refreshToken;
+                const {refreshTokenDecoded, accessTokenDecoded} = res.data;
+                const origAccessToken = refreshTokenDecoded.accessToken;
+                setAccessToken(origAccessToken)
+                refreshTokenDecoded.accessToken = 
+                origAccessToken.substr(1,10) + 
+                '...' +  
+                origAccessToken.substr(origAccessToken.length -5)               
+                setAccessTokenDecoded(accessTokenDecoded);
+                setRefreshTokenDecoded(refreshTokenDecoded);
+            }
             setIsFetching(false);
-            expAccessTimer = setInterval(() => {
-                const remainSec = parseInt((accessTokenExp*1000 - Date.now())/1000).toFixed(0);
-                if(remainSec <= 0) {
-                    setAccessRemainSeconds('expired');
-                    return
-                }
-                setAccessRemainSeconds(remainSec);
-            },1000)
-            expRefreshTimer = setInterval(() => {
-                const remainSec = parseInt((refreshTokenExp*1000 - Date.now())/1000).toFixed(0);
-                if(remainSec <= 0) {
-                    setRefreshRemainSeconds('expired');
-                    return
-                }
-                setRefreshRemainSeconds(remainSec);
-            },1000)
         })
         .catch(err => {
             setIsFetching(false);
             console.log(err)
         })
-        return () => {
-            console.log('dismount Protected')
-            clearInterval(expAccessTimer);
-        }
+
     },[resource])
 
     const onClickLogout = React.useCallback(() => {

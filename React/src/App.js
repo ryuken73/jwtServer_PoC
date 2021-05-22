@@ -6,11 +6,14 @@ import {Login, Protected, Unauth} from './pages';
 import Loading from './Loading';
 import Alert from './Alert';
 import axios from 'axios';
+import jwt from 'jsonwebtoken';
 
 export default function App(props) {
   console.log('App re-render:', props);
   const history = useHistory();
-  const [accessToken, setAccessToken] = React.useState('')
+  const [accessToken, setAccessToken] = React.useState('');
+  const [accessTokenDecoded, setAccessTokenDecoded] = React.useState('');
+  const [refreshTokenDecoded, setRefreshTokenDecoded] = React.useState('');
 
   const syncLogout = e => {
     if (e.key === 'logout') {
@@ -42,6 +45,7 @@ export default function App(props) {
           if(success){
             // set new access token (to refresh Protected component)
             setAccessToken(accessToken);
+            setAccessTokenDecoded(jwt.decode(accessToken));
             // replace default access token query parameter with new access token.
             axios.defaults.params = {
               ...axios.defaults.params,
@@ -144,14 +148,28 @@ export default function App(props) {
             <Login showAlert={showAlert} setTokenValid={setTokenValid} useAccessTokenIn={useAccessTokenIn}></Login> 
           </Route> 
           <Route exact path="/pages/login">
-            <Login showAlert={showAlert} setTokenValid={setTokenValid} useAccessTokenIn={useAccessTokenIn}></Login>
+            <Login 
+              showAlert={showAlert} 
+              setTokenValid={setTokenValid} 
+              useAccessTokenIn={useAccessTokenIn} 
+              setAccessToken={setAccessToken}
+              setAccessTokenDecoded={setAccessTokenDecoded}
+              setRefreshTokenDecoded={setRefreshTokenDecoded}
+            ></Login>
           </Route>
           <Route 
             setTokenValid={setTokenValid} 
             showAlert={showAlert} 
             path="/pages/private/:resource"
           >
-            <Protected accessToken={accessToken} setAccessToken={setAccessToken}></Protected>
+            <Protected 
+              accessToken={accessToken} 
+              setAccessToken={setAccessToken}
+              setAccessTokenDecoded={setAccessTokenDecoded}
+              setRefreshTokenDecoded={setRefreshTokenDecoded}
+              accessTokenDecoded={accessTokenDecoded} 
+              refreshTokenDecoded={refreshTokenDecoded}
+            ></Protected>
           </Route>
           <Route 
             showAlert={showAlert} 

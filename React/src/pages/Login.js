@@ -16,6 +16,7 @@ import Container from '@material-ui/core/Container';
 import axios from 'axios';
 import { useHistory } from 'react-router';
 import Loading from '../Loading';
+import jwt from 'jsonwebtoken';
 
 function Copyright() {
   return (
@@ -62,7 +63,10 @@ function Login(props) {
   const {
     setTokenValid,
     showAlert,
-    useAccessTokenIn
+    useAccessTokenIn,
+    setAccessToken,
+    setAccessTokenDecoded,
+    setRefreshTokenDecoded
   } = props;
   const history = useHistory();
   const classes = useStyles();
@@ -83,6 +87,7 @@ function Login(props) {
 
   const returnAccessTokenBy = 'body'; // cookie
   const getAccessTokenFromBody = res => res.data.accessToken;
+  const getRefreshTokenDecoded = res => res.data.refreshTokenDecoded;
   const injectAccessToken = {
     'query' : injectTokenQueryParamenter,
     'cookie' : () => {},
@@ -128,7 +133,11 @@ function Login(props) {
           const {authenticated, errMsg} = res.data;
           if(authenticated === true){
             if(returnAccessTokenBy === 'body'){
-              const accessToken = getAccessTokenFromBody(res);  
+              const accessToken = getAccessTokenFromBody(res);                
+              const refreshTokenDecoded = getRefreshTokenDecoded(res);
+              setAccessToken(accessToken);
+              setAccessTokenDecoded(jwt.decode(accessToken));
+              setRefreshTokenDecoded(refreshTokenDecoded);
               const setupRequest = injectAccessToken[useAccessTokenIn];
               setupRequest(accessToken);
             }
