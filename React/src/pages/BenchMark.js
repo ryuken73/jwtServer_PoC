@@ -9,7 +9,7 @@ function Benchmark() {
     const [reqCount, setReqCount] = React.useState(100);
     const [reqStatus, setReqStatus] = React.useState('stopped');
     const [publicResult, setPublicResult] = React.useState(0);
-    const [privateResult, setPublicPrivate] = React.useState('No Result');
+    const [privateResult, setPrivateResult] = React.useState(0);
     const [publicProcessed, setPublicProcessed] = React.useState(0);
     const [privateProcessed, setPrivateProcessed] = React.useState(0);
 
@@ -29,12 +29,16 @@ function Benchmark() {
         return axios.get(`/public/echo/${reqId}`)
     }
 
+    const requestPrivate = reqId => {
+        return axios.get(`/private/echo/${reqId}`)
+    }
+
     const runReqPublic = React.useCallback(async () => {
+        setReqStatus('started');
         const reqNumbers = mkCounter(reqCount);
         const startTime = Date.now();
+        setPublicResult(0)
         setPublicProcessed(0)
-
-        setReqStatus('public-start');
         for await (let reqId of reqNumbers){
             await requestPublic(reqId); 
             setPublicProcessed(processed => processed + 1)
@@ -45,8 +49,39 @@ function Benchmark() {
         setReqStatus('stopped');
     },[reqCount])
 
+    
+    const runReqPrivate = React.useCallback(async () => {
+        setReqStatus('started');
+        const reqNumbers = mkCounter(reqCount);
+        const startTime = Date.now();
+        setPrivateResult(0)
+        setPrivateProcessed(0)
+        for await (let reqId of reqNumbers){
+            await requestPrivate(reqId); 
+            setPrivateProcessed(processed => processed + 1)
+        }
+
+        const elapsed = Date.now() - startTime;
+        setPrivateResult(elapsed);
+        setReqStatus('stopped');
+    },[reqCount])
+
+    const ButtonCustom = (props) => {
+        return (
+        <Button 
+            disabled={reqStatus === 'started'} 
+            variant="contained" 
+            size="small" 
+            color="primary" 
+            {...props}
+        >
+            {props.children}
+        </Button>
+        )
+    }
+
     return (
-        <Box display="flex" flexDirection="column" m="15px">
+        <Box display="flex" flexDirection="column" m="5px">
             <Box>
                 <TextField 
                     variant="outlined" 
@@ -58,15 +93,15 @@ function Benchmark() {
                 ></TextField>
             </Box>
             <Box display="flex" alignItems="center" m="5px"> 
-                <Box width="60px">Public</Box>
-                <Button variant="contained" size="small" color="primary" onClick={runReqPublic}>Start</Button>
+                <Box width="100px">Echo(Public)</Box>
+                <ButtonCustom onClick={runReqPublic}>Start</ButtonCustom>
                 <Box width="auto" ml="10px">Result: {new Intl.NumberFormat().format(publicResult)} msec   [{publicProcessed}]</Box>
 
             </Box>
             <Box display="flex" alignItems="center" m="5px">
-                <Box width="60px">Private</Box>
-                <Button variant="contained" size="small" color="primary">Start</Button>
-                <Box width="auto" ml="10px">Result: {privateResult}</Box>
+                <Box width="100px">Echo(Private)</Box>
+                <ButtonCustom onClick={runReqPrivate}>Start</ButtonCustom>
+                <Box width="auto" ml="10px">Result: {new Intl.NumberFormat().format(privateResult)} msec   [{privateProcessed}]</Box>
 
             </Box>
         </Box>
