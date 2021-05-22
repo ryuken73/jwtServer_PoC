@@ -1,7 +1,9 @@
 import React from 'react';
-import {useParams, NavLink} from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import Menu from './Menu';
+import Download from './Download';
 import BenchMark from './BenchMark';
 import Divider from '@material-ui/core/Divider';
 import { useHistory } from 'react-router';
@@ -14,8 +16,8 @@ function Protected(props) {
     const [isFetching, setIsFetching] = React.useState(true);
     const [accessTokenDecoded, setAccessTokenDecoded] = React.useState({});
     const [refreshTokenDecoded, setRefreshTokenDecoded] = React.useState({});
-    const [accessRemainSeconds, setAccessRemainSeconds] = React.useState('calculating...');
-    const [refreshRemainSeconds, setRefreshRemainSeconds] = React.useState('calculating...');
+    const [accessRemainSeconds, setAccessRemainSeconds] = React.useState('calculating.');
+    const [refreshRemainSeconds, setRefreshRemainSeconds] = React.useState('calculating.');
     React.useEffect(() => {
         let expAccessTimer, expRefreshTimer;
         axios.get('/private')
@@ -70,7 +72,7 @@ function Protected(props) {
         history.push('/pages/login')
     },[])
     return (
-        <Box display="flex" flexDirection="column" m="auto" mt="80px" width="40%">
+        <Box display="flex" flexDirection="column" m="auto" mt="80px" minWidth="550px" width="40%">
             {isFetching === false &&      
             <React.Fragment>
                 <Box display="flex" mb="10px">
@@ -107,14 +109,15 @@ function Protected(props) {
                 <Box fontSize="30px" mt="10px">
                     {resource} page
                 </Box>
-                <Box display="flex">
-                    <Box m="5px"><NavLink to="/pages/private/portal">Portal</NavLink></Box>
-                    <Box m="5px"><NavLink to="/pages/private/mail">Mail</NavLink></Box>
-                    <Box m="5px"><NavLink to="/pages/private/userInfo">UserInfo</NavLink></Box>
-                    <Box m="5px"><NavLink to="/pages/private/benchmark">Benchmark</NavLink></Box>
-                    <Box ml="auto"><Button onClick={onClickLogout}>logout</Button></Box>
-                </Box>
+                <Menu onClickLogout={onClickLogout}></Menu>
+                {resource === 'portal' && (
+                    <Box style={{"word-wrap":"break-word"}}>access token: {axios.defaults.params.accessToken}</Box>
+                )}
+                {resource === 'unauth-download' && <Download unauth={false}></Download>}
+                {resource === 'private-download' && <Download unauth={true}></Download>}
                 {resource === 'benchmark' && <BenchMark></BenchMark>}
+
+
             </React.Fragment>
             }
         </Box>
