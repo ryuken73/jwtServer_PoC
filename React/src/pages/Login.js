@@ -145,8 +145,7 @@ function Login(props) {
           console.error(err)
           setIsFetching(false)
       })
-    }, 1000)
-
+    }, 300)
   }
 
   return (
