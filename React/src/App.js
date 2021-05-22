@@ -89,12 +89,12 @@ export default function App(props) {
               console.log('##### setting token valid true')
               setTokenValid(true);
               setIsFetching(false);
-            },500)
+            },300)
         } else {
           setTimeout(() => {
             setTokenValid(false);
             setIsFetching(false);
-          },500)
+          },300)
         }
     })
     .catch(err => {
@@ -102,7 +102,7 @@ export default function App(props) {
           showAlert({severity:'error', message: err.message})
           setTokenValid(false)
           setIsFetching(false);
-        }, 500)
+        }, 300)
 
     })
 
@@ -129,14 +129,22 @@ export default function App(props) {
           <Route exact path="/pages/login">
             <Login showAlert={showAlert} setTokenValid={setTokenValid} useAccessTokenIn={useAccessTokenIn}></Login>
           </Route>
-          <AuthRoute 
+          <Route 
+            setTokenValid={setTokenValid} 
+            showAlert={showAlert} 
+            path="/pages/private/:resource"
+          >
+            <Protected></Protected>
+          </Route>
+
+          {/* <AuthRoute 
             tokenValid={tokenValid} 
             setTokenValid={setTokenValid} 
             showAlert={showAlert} 
             path="/pages/private/:resource"
           >
             <Protected></Protected>
-          </AuthRoute>
+          </AuthRoute> */}
         </Switch>
       }
       <Alert
