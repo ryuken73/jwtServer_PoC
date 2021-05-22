@@ -20,10 +20,6 @@ function Unauth(props) {
         history.push('/pages/login')
     },[])
 
-    const downloadUnauth = e => {
-        axios.get('/public/download/sample.txt')
-    }
-
     return (
         <Box display="flex" flexDirection="column" m="auto" mt="80px" minWidth="550px" width="40%">
             <Box height={"255px"}></Box>

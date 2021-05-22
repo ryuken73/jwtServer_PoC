@@ -6,7 +6,6 @@ const basePath = '../download';
 /* GET users listing. */
 router.get('/download/:fname', (req, res) => {
   const fullPath = path.join(__dirname, basePath, req.params.fname);
-  console.log(fullPath)
   res.download(fullPath, req.params.fname);
 })
 

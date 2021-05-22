@@ -18,6 +18,7 @@ function Protected(props) {
     const [refreshTokenDecoded, setRefreshTokenDecoded] = React.useState({});
     const [accessRemainSeconds, setAccessRemainSeconds] = React.useState('calculating.');
     const [refreshRemainSeconds, setRefreshRemainSeconds] = React.useState('calculating.');
+    const [accessToken, setAccessToken] = React.useState('');
     React.useEffect(() => {
         let expAccessTimer, expRefreshTimer;
         axios.get('/private')
@@ -25,7 +26,7 @@ function Protected(props) {
             console.log(res);
             const {refreshTokenDecoded, accessTokenDecoded} = res.data;
             const origAccessToken = refreshTokenDecoded.accessToken;
-
+            setAccessToken(origAccessToken)
             refreshTokenDecoded.accessToken = 
             origAccessToken.substr(1,10) + 
             '...' +  
@@ -113,8 +114,7 @@ function Protected(props) {
                 {resource === 'portal' && (
                     <Box style={{"word-wrap":"break-word"}}>access token: {axios.defaults.params.accessToken}</Box>
                 )}
-                {resource === 'unauth-download' && <Download unauth={false}></Download>}
-                {resource === 'private-download' && <Download unauth={true}></Download>}
+                {resource === 'private-download' && <a href={`/private/download/sample.txt?accessToken=${accessToken}`} download>download file</a>}
                 {resource === 'benchmark' && <BenchMark></BenchMark>}
 
 

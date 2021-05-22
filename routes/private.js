@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const path = require('path');
 
-const basePath = '/download';
+const basePath = '../download';
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   const {refreshTokenDecoded, accessTokenDecoded} = req;
@@ -10,7 +10,8 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/download/:fname', (req, res) => {
-  const fullPath = path.join(basePath, req.params.fname);
+  const fullPath = path.join(__dirname, basePath, req.params.fname);
+  console.log(fullPath)
   res.download(fullPath, req.params.fname);
 })
 

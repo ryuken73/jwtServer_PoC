@@ -5,7 +5,7 @@ const {jwtVerify} = jwtUtil;
 module.exports = async (req, res, next) => {
     // SECRET was set when express started. 
     const {SECRET} = req.app.locals;
-    const {useAccessTokenIn} = req.query;
+    const {useAccessTokenIn='query'} = req.query;
     const getAccessToken = tokenGetter[useAccessTokenIn];
     const accessToken = getAccessToken(req);
     const refreshToken = req.cookies ? req.cookies.refreshToken : null;
