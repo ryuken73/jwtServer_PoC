@@ -2,7 +2,7 @@ import React from 'react';
 import {Route, Switch, useHistory} from 'react-router-dom';
 import Box from '@material-ui/core/Box'
 import AuthRoute from './AuthRoute';
-import {Login, Protected} from './pages';
+import {Login, Protected, Unauth} from './pages';
 import Loading from './Loading';
 import Alert from './Alert';
 import axios from 'axios';
@@ -84,7 +84,7 @@ export default function App(props) {
   React.useEffect(() => {
     const listenLogout = window.addEventListener('storage', syncLogout);
     return () => {
-      window.removeEventListener(listenLogout)
+      window.removeEventListener('storage', listenLogout)
     }
   },[])
 
@@ -150,7 +150,12 @@ export default function App(props) {
           >
             <Protected></Protected>
           </Route>
-
+          <Route 
+            showAlert={showAlert} 
+            path="/pages/unauth/:resource"
+          >
+            <Unauth></Unauth>
+          </Route>
           {/* <AuthRoute 
             tokenValid={tokenValid} 
             setTokenValid={setTokenValid} 
