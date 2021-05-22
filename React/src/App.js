@@ -11,6 +11,13 @@ export default function App(props) {
   console.log('App re-render:', props);
   const history = useHistory();
 
+  const syncLogout = e => {
+    if (e.key === 'logout') {
+      console.log('logged out from storage!')
+      history.push('/pages/login');
+    }
+  }
+
   const axiosRedirectSetup = options => {
     const {axios,  errStatusCode, redirectUrl} = options;
     axios.interceptors.response.use(
@@ -73,6 +80,13 @@ export default function App(props) {
       useAccessTokenIn
     }
   },[useAccessTokenIn])
+
+  React.useEffect(() => {
+    const listenLogout = window.addEventListener('storage', syncLogout);
+    return () => {
+      window.removeEventListener(listenLogout)
+    }
+  },[])
 
   React.useEffect(() => {
     const errStatusCode = {

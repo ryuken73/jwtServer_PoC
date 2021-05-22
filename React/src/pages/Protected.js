@@ -1,16 +1,15 @@
 import React from 'react';
 import {useParams, NavLink} from 'react-router-dom';
 import Box from '@material-ui/core/Box';
-import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
 import BenchMark from './BenchMark';
 import Divider from '@material-ui/core/Divider';
+import { useHistory } from 'react-router';
 import axios from 'axios';
 
 function Protected(props) {
     // console.log('Protected re-render: ', props);
-    const {
-        history
-    } = props;
+    const history = useHistory();
     const {resource} = useParams();
     const [isFetching, setIsFetching] = React.useState(true);
     const [accessTokenDecoded, setAccessTokenDecoded] = React.useState({});
@@ -61,6 +60,15 @@ function Protected(props) {
             clearInterval(expAccessTimer);
         }
     },[resource])
+
+    const onClickLogout = React.useCallback(() => {
+        axios.defaults.params = {
+            ...axios.defaults.params,
+            accessToken: ''
+        }
+        window.localStorage.setItem('logout', Date.now());
+        history.push('/pages/login')
+    },[])
     return (
         <Box display="flex" flexDirection="column" m="auto" mt="80px" width="40%">
             {isFetching === false &&      
@@ -68,7 +76,7 @@ function Protected(props) {
                 <Box display="flex" mb="10px">
                     <Box display="flex" flexDirection="column" width="50%" m="5px">
                         <Box color={accessRemainSeconds==='expired' && 'red'} mb="5px">Access Token: remains [{accessRemainSeconds}]</Box>
-                        <Paper elevation={3}>
+                        <Box border={1}>
                             {Object.entries(accessTokenDecoded).map(([key, value]) => {
                                 return (
                                     <Box p="3px" display="flex">
@@ -77,11 +85,11 @@ function Protected(props) {
                                     </Box>
                                 )
                             })}
-                        </Paper>
+                        </Box>
                     </Box>
                     <Box display="flex" flexDirection="column" width="50%" m="5px">
                         <Box color={refreshRemainSeconds==='expired' && 'red'} mb="5px">Refresh Token: remains [{refreshRemainSeconds}]</Box>
-                        <Paper elevation={3}>
+                        <Box border={1}>
                             {Object.entries(refreshTokenDecoded).map(([key, value]) => {
                                 return (
                                     <Box p="3px" display="flex">
@@ -90,7 +98,7 @@ function Protected(props) {
                                     </Box>
                                 )
                             })}
-                        </Paper>
+                        </Box>
                     </Box>
                 </Box>
 
@@ -104,6 +112,7 @@ function Protected(props) {
                     <Box m="5px"><NavLink to="/pages/private/mail">Mail</NavLink></Box>
                     <Box m="5px"><NavLink to="/pages/private/userInfo">UserInfo</NavLink></Box>
                     <Box m="5px"><NavLink to="/pages/private/benchmark">Benchmark</NavLink></Box>
+                    <Box ml="auto"><Button onClick={onClickLogout}>logout</Button></Box>
                 </Box>
                 {resource === 'benchmark' && <BenchMark></BenchMark>}
             </React.Fragment>

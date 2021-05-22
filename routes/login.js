@@ -3,7 +3,7 @@ const jwtUtil = require('../lib/jwtUtil');
 const router = express.Router();
 
 const passwdTable = {
-    'ryuken01@sbs.co.kr':'1234'
+    'jwt':'1'
 }
 
 const db = {
