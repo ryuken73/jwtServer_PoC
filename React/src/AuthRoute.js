@@ -19,7 +19,7 @@ function AuthRoute(props) {
             }
         })
         .catch(err => {
-            console.log(err)
+            console.log('token expire. redirect login page.')
             setTokenValid(false)
         })
     },[setTokenValid])

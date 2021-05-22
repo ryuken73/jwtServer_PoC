@@ -71,7 +71,7 @@ function Protected(props) {
                         <Paper elevation={3}>
                             {Object.entries(accessTokenDecoded).map(([key, value]) => {
                                 return (
-                                    <Box p="5px" display="flex">
+                                    <Box p="3px" display="flex">
                                             <Box>{key} :</Box>
                                             <Box>{value}</Box>
                                     </Box>
@@ -84,7 +84,7 @@ function Protected(props) {
                         <Paper elevation={3}>
                             {Object.entries(refreshTokenDecoded).map(([key, value]) => {
                                 return (
-                                    <Box p="5px" display="flex">
+                                    <Box p="3px" display="flex">
                                             <Box>{key} :</Box>
                                             <Box>{value}</Box>
                                     </Box>
@@ -99,11 +99,11 @@ function Protected(props) {
                 <Box fontSize="30px" mt="10px">
                     {resource} page
                 </Box>
-                <Box>
-                    <Box><NavLink to="/pages/private/portal">Portal</NavLink></Box>
-                    <Box><NavLink to="/pages/private/mail">Mail</NavLink></Box>
-                    <Box><NavLink to="/pages/private/userInfo">UserInfo</NavLink></Box>
-                    <Box><NavLink to="/pages/private/benchmark">Benchmark</NavLink></Box>
+                <Box display="flex">
+                    <Box m="5px"><NavLink to="/pages/private/portal">Portal</NavLink></Box>
+                    <Box m="5px"><NavLink to="/pages/private/mail">Mail</NavLink></Box>
+                    <Box m="5px"><NavLink to="/pages/private/userInfo">UserInfo</NavLink></Box>
+                    <Box m="5px"><NavLink to="/pages/private/benchmark">Benchmark</NavLink></Box>
                 </Box>
                 {resource === 'benchmark' && <BenchMark></BenchMark>}
             </React.Fragment>
