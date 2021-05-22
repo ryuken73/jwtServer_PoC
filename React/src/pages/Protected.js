@@ -11,6 +11,7 @@ import axios from 'axios';
 
 function Protected(props) {
     // console.log('Protected re-render: ', props);
+    const {accessToken, setAccessToken} = props;
     const history = useHistory();
     const {resource} = useParams();
     const [isFetching, setIsFetching] = React.useState(true);
@@ -18,7 +19,11 @@ function Protected(props) {
     const [refreshTokenDecoded, setRefreshTokenDecoded] = React.useState({});
     const [accessRemainSeconds, setAccessRemainSeconds] = React.useState('calculating.');
     const [refreshRemainSeconds, setRefreshRemainSeconds] = React.useState('calculating.');
-    const [accessToken, setAccessToken] = React.useState('');
+    // const [accessToken, setAccessToken] = React.useState('');
+    React.useEffect(() => {
+
+    },[accessToken]);
+
     React.useEffect(() => {
         let expAccessTimer, expRefreshTimer;
         axios.get('/private')

@@ -10,6 +10,7 @@ import axios from 'axios';
 export default function App(props) {
   console.log('App re-render:', props);
   const history = useHistory();
+  const [accessToken, setAccessToken] = React.useState('')
 
   const syncLogout = e => {
     if (e.key === 'logout') {
@@ -39,6 +40,8 @@ export default function App(props) {
           const response = await axios.post('/refreshToken', {returnAccessTokenBy: 'body'});
           const {success, accessToken} = response.data;
           if(success){
+            // set new access token (to refresh Protected component)
+            setAccessToken(accessToken);
             // replace default access token query parameter with new access token.
             axios.defaults.params = {
               ...axios.defaults.params,
@@ -148,7 +151,7 @@ export default function App(props) {
             showAlert={showAlert} 
             path="/pages/private/:resource"
           >
-            <Protected></Protected>
+            <Protected accessToken={accessToken} setAccessToken={setAccessToken}></Protected>
           </Route>
           <Route 
             showAlert={showAlert} 
