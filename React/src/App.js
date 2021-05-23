@@ -11,8 +11,8 @@ import jwt from 'jsonwebtoken';
 export default function App(props) {
   const history = useHistory();
   const location = useLocation();
-  const {pathname} = location;
-  console.log('App re-render:', props, location.pathname, props.location);
+  const {pathname, state} = location;
+  console.log('App re-render:', props, pathname, props.location);
 
   const [accessToken, setAccessToken] = React.useState('');
   const [accessTokenDecoded, setAccessTokenDecoded] = React.useState('');
@@ -27,7 +27,7 @@ export default function App(props) {
   }
 
   const axiosRedirectSetup = options => {
-    const {axios,  errStatusCode, redirectUrl} = options;
+    const {axios,  errStatusCode, loginPageUrl} = options;
     axios.interceptors.response.use(
       // 200 resposne. just pass response
       function(response){
@@ -39,7 +39,7 @@ export default function App(props) {
         console.log(error.response)
         // if response code is refresh token expired, then redirect login page.
         if(error.response.status === errStatusCode.refreshTokenExpires){
-          history.push(redirectUrl);
+          history.push(loginPageUrl);
           return Promise.reject(error);
         }
         // if response code is access token expired, then request refresh token and resend request.
@@ -104,11 +104,11 @@ export default function App(props) {
       'refreshTokenExpires': 401,
       'accessTokenExpires': 499
     }
-    const interceptor = axiosRedirectSetup({axios, errStatusCode, redirectUrl:`/pages/login?toPage=${redirectPath}`})
+    const interceptor = axiosRedirectSetup({axios, errStatusCode, loginPageUrl:`/pages/login`})
     axios.get('/decodeToken')
     .then(res => {
         const {authenticated} = res.data;
-        console.log('#######:', res.data)
+        console.log('####### ask decode token:', res.data)
         if(authenticated === true){
             setTimeout(() => {
               setTokenValid(true);
@@ -134,14 +134,14 @@ export default function App(props) {
     return () => {
       axiosRedirectRelease(interceptor)
     }
-  },[redirectPath]) 
+  },[]) 
 
-  const showAlert = options => {
+  const showAlert = React.useCallback(options => {
     const {message, severity} = options;
     setAlertMessage(message);
     setAlertSevirity(severity);
     setOpenAlert(true);
-  }
+  },[])
 
   return (
     <div>

@@ -21,6 +21,7 @@ function Protected(props) {
     const [refreshRemainSeconds, setRefreshRemainSeconds] = React.useState('calculating.');
 
     React.useEffect(() => {
+        console.log('### set timer for token expiry')
         if(accessTokenDecoded === '' || refreshTokenDecoded === ''){
             return
         }
@@ -38,6 +39,7 @@ function Protected(props) {
             console.log('####', remainSec, accessTokenExp*1000, Date.now())
             if(remainSec <= 0) {
                 setAccessRemainSeconds('expired');
+                clearInterval(expAccessTimer);
                 return
             }
             setAccessRemainSeconds(remainSec);
@@ -46,6 +48,7 @@ function Protected(props) {
             const remainSec = parseInt((refreshTokenExp*1000 - Date.now())/1000).toFixed(0);
             if(remainSec <= 0) {
                 setRefreshRemainSeconds('expired');
+                clearInterval(expRefreshTimer);
                 return
             }
             setRefreshRemainSeconds(remainSec);

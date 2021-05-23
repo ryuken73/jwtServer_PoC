@@ -66,7 +66,8 @@ function Login(props) {
     useAccessTokenIn,
     setAccessToken,
     setAccessTokenDecoded,
-    setRefreshTokenDecoded
+    setRefreshTokenDecoded,
+    location
   } = props;
   const history = useHistory();
   const classes = useStyles();
@@ -117,7 +118,7 @@ function Login(props) {
   }
 
 
-  const onSubmit = event => {
+  const onSubmit = React.useCallback(event => {
     console.log('submit:', userId, password);
     setIsFetching(true);
     setTimeout(() => {
@@ -155,7 +156,7 @@ function Login(props) {
           setIsFetching(false)
       })
     }, 300)
-  }
+  },[userId, password, accessTokenExpire, refreshTokenExpire])
 
   return (
     <Container component="main" maxWidth="xs">

@@ -13,9 +13,9 @@ function Benchmark() {
     const [publicProcessed, setPublicProcessed] = React.useState(0);
     const [privateProcessed, setPrivateProcessed] = React.useState(0);
 
-    const onChangeReqCount = event => {
+    const onChangeReqCount = React.useCallback(event => {
         setReqCount(event.target.value);
-    }
+    }, [])
 
     function* mkCounter(max){
         let current = 0;
