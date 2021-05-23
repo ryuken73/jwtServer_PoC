@@ -17,6 +17,8 @@ var app = express();
 app.locals.ACCESS_JWT_EXPIRE_SECONDS = 60;
 app.locals.REFRESH_JWT_EXPIRE_SECONDS = 60 * 60;
 app.locals.SECRET = 'WISE';
+app.locals.REDIRECT_LOGIN_URL = '/pages/login';
+app.locals.STATIC_FILE_PATH_PREFIX = '/static/';
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

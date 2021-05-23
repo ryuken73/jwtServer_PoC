@@ -132,7 +132,12 @@ function Protected(props) {
                 {resource === 'portal' && (
                     <Box style={{"word-wrap":"break-word"}}>access token: {axios.defaults.params.accessToken}</Box>
                 )}
-                {resource === 'private-download' && <a href={`/private/download/sample.txt?accessToken=${accessToken}`} download>download file</a>}
+                {resource === 'private-download' && (
+                    <React.Fragment>
+                        <a href={`/private/download/sample.txt?accessToken=${accessToken}`} >download file(401)</a>
+                        <a href={`/private/static/download/sample.txt?accessToken=${accessToken}`} >download file(302)</a>
+                    </React.Fragment>
+                )}
                 {resource === 'benchmark' && <BenchMark></BenchMark>}
 
 

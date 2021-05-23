@@ -15,6 +15,13 @@ router.get('/download/:fname', (req, res) => {
   res.download(fullPath, req.params.fname);
 })
 
+router.get('/static/download/:fname', (req, res) => {
+  const fullPath = path.join(__dirname, basePath, req.params.fname);
+  console.log(fullPath)
+  res.download(fullPath, req.params.fname);
+})
+
+
 router.get('/echo/:value', (req, res) => {
   res.json({result: req.params.value});
 })
