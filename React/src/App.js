@@ -1,5 +1,5 @@
 import React from 'react';
-import {Route, Switch, useHistory} from 'react-router-dom';
+import {Route, Switch, useHistory, useLocation} from 'react-router-dom';
 import Box from '@material-ui/core/Box'
 import AuthRoute from './AuthRoute';
 import {Login, Protected, Unauth} from './pages';
@@ -9,11 +9,15 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 
 export default function App(props) {
-  console.log('App re-render:', props);
   const history = useHistory();
+  const location = useLocation();
+  const {pathname} = location;
+  console.log('App re-render:', props, location.pathname, props.location);
+
   const [accessToken, setAccessToken] = React.useState('');
   const [accessTokenDecoded, setAccessTokenDecoded] = React.useState('');
   const [refreshTokenDecoded, setRefreshTokenDecoded] = React.useState('');
+  const [redirectPath, setRedirectPath] = React.useState(pathname)
 
   const syncLogout = e => {
     if (e.key === 'logout') {
@@ -100,16 +104,16 @@ export default function App(props) {
       'refreshTokenExpires': 401,
       'accessTokenExpires': 499
     }
-    const interceptor = axiosRedirectSetup({axios, errStatusCode, redirectUrl:'/pages/login'})
+    const interceptor = axiosRedirectSetup({axios, errStatusCode, redirectUrl:`/pages/login?toPage=${redirectPath}`})
     axios.get('/decodeToken')
     .then(res => {
         const {authenticated} = res.data;
         console.log('#######:', res.data)
         if(authenticated === true){
             setTimeout(() => {
-              console.log('##### setting token valid true')
               setTokenValid(true);
               setIsFetching(false);
+              history.push(redirectPath)
             },300)
         } else {
           setTimeout(() => {
@@ -130,7 +134,7 @@ export default function App(props) {
     return () => {
       axiosRedirectRelease(interceptor)
     }
-  },[]) 
+  },[redirectPath]) 
 
   const showAlert = options => {
     const {message, severity} = options;
