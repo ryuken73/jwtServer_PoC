@@ -27,7 +27,7 @@ export default function App(props) {
   }
 
   const axiosRedirectSetup = options => {
-    const {axios,  errStatusCode, loginPageUrl} = options;
+    const {axios,  errStatusCode, loginPageUrl, toPage} = options;
     axios.interceptors.response.use(
       // 200 resposne. just pass response
       function(response){
@@ -39,16 +39,20 @@ export default function App(props) {
         console.log(error.response)
         // if response code is refresh token expired, then redirect login page.
         if(error.response.status === errStatusCode.refreshTokenExpires){
-          history.push(loginPageUrl);
+          console.log('### add toPage: ', toPage)
+          history.push(loginPageUrl, {toPage});
           return Promise.reject(error);
         }
         // if response code is access token expired, then request refresh token and resend request.
         if(error.response.status === errStatusCode.accessTokenExpires){
           const response = await axios.post('/refreshToken', {returnAccessTokenBy: 'body'});
+          console.log('###### after aixos post: ',response)
           const {success, accessToken} = response.data;
+          console.log(success, accessToken)
           if(success){
             // set new access token (to refresh Protected component)
             setAccessToken(accessToken);
+            console.log('### setAccessToken Decoded:', jwt.decode(accessToken));
             setAccessTokenDecoded(jwt.decode(accessToken));
             // replace default access token query parameter with new access token.
             axios.defaults.params = {
@@ -104,7 +108,7 @@ export default function App(props) {
       'refreshTokenExpires': 401,
       'accessTokenExpires': 499
     }
-    const interceptor = axiosRedirectSetup({axios, errStatusCode, loginPageUrl:`/pages/login`})
+    const interceptor = axiosRedirectSetup({axios, errStatusCode, loginPageUrl:`/pages/login`, toPage:pathname})
     axios.get('/decodeToken')
     .then(res => {
         const {authenticated} = res.data;
@@ -132,6 +136,7 @@ export default function App(props) {
     })
 
     return () => {
+      console.log('$$$ release interceptor')
       axiosRedirectRelease(interceptor)
     }
   },[]) 

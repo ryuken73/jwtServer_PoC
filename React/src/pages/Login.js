@@ -14,7 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import axios from 'axios';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import Loading from '../Loading';
 import jwt from 'jsonwebtoken';
 
@@ -67,8 +67,15 @@ function Login(props) {
     setAccessToken,
     setAccessTokenDecoded,
     setRefreshTokenDecoded,
-    location
   } = props;
+  const location = useLocation();
+  const LOGIN_PAGE = '/pages/login';
+  const DEFAULT_FIRST_PAGE = '/pages/private/portal';
+  console.log('##### goto from location0: ', location.state && location.state.toPage);
+  const goto = location.state && location.state.toPage || DEFAULT_FIRST_PAGE;
+  console.log('##### goto from location1: ', goto);
+  const gotoNoLogin = goto === LOGIN_PAGE ? DEFAULT_FIRST_PAGE : goto;
+  console.log('##### goto from location2: ', gotoNoLogin);
   const history = useHistory();
   const classes = useStyles();
   const [userId, setUserId] = React.useState('');
@@ -143,7 +150,11 @@ function Login(props) {
               setupRequest(accessToken);
             }
             setTokenValid(true)
-            history.push('/pages/private/portal');
+            console.log('##### in callback: ', gotoNoLogin);
+
+            // history.push('/pages/private/portal');
+            history.push(gotoNoLogin);
+
             setIsFetching(false)
             showAlert({severity:'success', message: 'login success!'})
             return;
@@ -156,7 +167,7 @@ function Login(props) {
           setIsFetching(false)
       })
     }, 300)
-  },[userId, password, accessTokenExpire, refreshTokenExpire])
+  },[userId, password, accessTokenExpire, refreshTokenExpire, gotoNoLogin])
 
   return (
     <Container component="main" maxWidth="xs">
