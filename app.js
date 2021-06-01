@@ -11,6 +11,7 @@ var publicRouter = require('./routes/public');
 var privateRouter = require('./routes/private');
 var decodeTokenRouter = require('./routes/decodeToken');
 var refreshTokenRouter = require('./routes/refreshToken');
+var validateRefreshToken = require('./routes/validateRefreshToken');
 
 var app = express();
 
@@ -39,6 +40,7 @@ app.use('/private', checkToken, privateRouter);
 app.use('/private-auth-req', checkToken, privateRouter);
 app.use('/decodeToken', decodeTokenRouter);
 app.use('/refreshToken', refreshTokenRouter);
+app.use('/validateRefreshToken', validateRefreshToken);
 
 app.use('/*', (req, res) => {
   res.sendFile(path.join(__dirname+'/public/index.html'));
