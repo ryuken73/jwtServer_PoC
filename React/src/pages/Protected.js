@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import Menu from './Menu';
 import Download from './Download';
 import BenchMark from './BenchMark';
+import BenchMarkAuthReq from './BenchMarkAuthReq';
 import Divider from '@material-ui/core/Divider';
 import { useHistory } from 'react-router';
 import axios from 'axios';
@@ -142,6 +143,7 @@ function Protected(props) {
                     </React.Fragment>
                 )}
                 {resource === 'benchmark' && <BenchMark></BenchMark>}
+                {resource === 'benchmarkAuthReq' && <BenchMarkAuthReq></BenchMarkAuthReq>}
 
 
             </React.Fragment>

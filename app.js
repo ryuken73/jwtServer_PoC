@@ -36,6 +36,7 @@ app.use('/users', usersRouter);
 app.use('/login', loginRouter);
 app.use('/public', publicRouter);
 app.use('/private', checkToken, privateRouter);
+app.use('/private-auth-req', checkToken, privateRouter);
 app.use('/decodeToken', decodeTokenRouter);
 app.use('/refreshToken', refreshTokenRouter);
 

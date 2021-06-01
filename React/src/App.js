@@ -154,7 +154,14 @@ export default function App(props) {
         <Loading open={isFetching} message={"Check Authenticated.."}></Loading> :
         <Switch>
           <Route exact path="/">
-            <Login showAlert={showAlert} setTokenValid={setTokenValid} useAccessTokenIn={useAccessTokenIn}></Login> 
+            <Login 
+              showAlert={showAlert} 
+              setTokenValid={setTokenValid} 
+              useAccessTokenIn={useAccessTokenIn}
+              setAccessToken={setAccessToken}
+              setAccessTokenDecoded={setAccessTokenDecoded}
+              setRefreshTokenDecoded={setRefreshTokenDecoded}
+            ></Login> 
           </Route> 
           <Route exact path="/pages/login">
             <Login 

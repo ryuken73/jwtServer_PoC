@@ -11,6 +11,7 @@ function Menu(props){
             <Box m="5px"><NavLink to="/pages/unauth/unauth-download">Unauth-Download</NavLink></Box>
             <Box m="5px"><NavLink to="/pages/private/private-download">Private-Download</NavLink></Box>
             <Box m="5px"><NavLink to="/pages/private/benchmark">Benchmark</NavLink></Box>
+            <Box m="5px"><NavLink to="/pages/private/benchmarkAuthReq">Auth-Req</NavLink></Box>
             <Box ml="auto"><Button onClick={onClickLogout}>logout</Button></Box>
         </Box>
     )
